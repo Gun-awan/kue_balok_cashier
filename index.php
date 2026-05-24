@@ -1,6 +1,15 @@
 <?php
 include 'koneksi.php';
 
+session_start();
+
+if(!isset($_SESSION['login'])){
+
+    header("Location: login.php");
+    exit;
+
+}
+
 /** @var mysqli $conn */
 
 $topping = mysqli_query($conn, "
@@ -490,7 +499,7 @@ while ($t = mysqli_fetch_array($topping)) {
 
                 // confirm simpan
                 let konfirmasi = confirm(
-                    'Simpan pesanan sekarang?'
+                    'Simpan pesanan?'
                 );
 
                 // jika cancel

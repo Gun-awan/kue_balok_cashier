@@ -1,6 +1,22 @@
 <?php
 include '../koneksi.php';
 
+session_start();
+
+if(!isset($_SESSION['login'])){
+
+    header("Location: login.php");
+    exit;
+
+}
+
+if($_SESSION['role'] != 'admin'){
+
+    header("Location: ../index.php");
+    exit;
+
+}
+
 /** @var mysqli $conn */
 
 // PRODUK
@@ -112,7 +128,7 @@ body{
 
 .section-box{
 
-    background: #f5f5f5;
+    background: #e7e7e7;
 
     border-radius:25px;
 
@@ -134,7 +150,7 @@ body{
 
 .item-card{
 
-    border:1px solid #bbb9b9;
+    border:1px solid #555555;
 
     border-radius:18px;
 

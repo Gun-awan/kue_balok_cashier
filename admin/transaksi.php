@@ -1,6 +1,22 @@
 <?php
 include '../koneksi.php';
 
+session_start();
+
+if(!isset($_SESSION['login'])){
+
+    header("Location: login.php");
+    exit;
+
+}
+
+if($_SESSION['role'] != 'admin'){
+
+    header("Location: ../index.php");
+    exit;
+
+}
+
 /** @var mysqli $conn */
 
 // tanggal filter
@@ -167,7 +183,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
 
             margin-bottom: 15px;
 
-            border: 2px solid #0d6efd;
+            border: 2px solid #0d8039;
 
         }
 
@@ -178,7 +194,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
 
             border-radius: 15px;
 
-            background: #e9f2ff;
+            background: #d4f5df;
 
             display: flex;
             justify-content: center;
@@ -230,7 +246,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
 
             padding: 15px;
 
-            border: 1px solid #e5e5e5;
+            border: 1px solid #198d19;
 
         }
 
@@ -319,7 +335,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
                 <!-- KIRI -->
                 <div class="d-flex align-items-center gap-3">
 
-                    <div class="icon-box">
+                    <div class="icon-box text-success">
                         <i class="bi bi-cash-stack"></i>
                     </div>
 
@@ -329,7 +345,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
                             Pendapatan :
                         </small>
 
-                        <h4 class="mb-0" style="color: #0d6efd;">
+                        <h4 class="mb-0 text-success">
                             Rp <?php echo number_format($totalHariIni); ?>
                         </h4>
 
@@ -345,7 +361,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
                 <!-- KANAN -->
                 <div class="text-center">
 
-                    <h3 class="mb-0" style="color: #0d6efd;">
+                    <h3 class="mb-0 text-success">
                         <?php echo $totalTransaksi; ?>
                     </h3>
 

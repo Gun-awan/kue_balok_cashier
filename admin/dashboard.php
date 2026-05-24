@@ -1,6 +1,22 @@
 <?php
 include '../koneksi.php';
 
+session_start();
+
+if(!isset($_SESSION['login'])){
+
+    header("Location: login.php");
+    exit;
+
+}
+
+if($_SESSION['role'] != 'admin'){
+
+    header("Location: ../index.php");
+    exit;
+
+}
+
 /** @var mysqli $conn */
 
 // FILTER TANGGAL
@@ -304,7 +320,7 @@ $totalMatcha =
 
         .card-pendapatan {
 
-            background: white;
+            background: #0d6efd;
 
             border: 2px solid #0d6efd;
             border-radius: 25px;
@@ -549,9 +565,9 @@ $totalMatcha =
         /* FAVORIT */
         .favorite-card {
 
-            background: #fff;
+            background: #eff0f1;
 
-            border: 1px solid #d3d2d2;
+            /* border: 1px solid #d3d2d2; */
 
             border-radius: 22px;
 
@@ -714,7 +730,7 @@ $totalMatcha =
 
                     <a style="border-radius: 18px;"
                         href="produk.php"
-                        class="btn btn-sm btn-primary">
+                        class="btn btn-sm btn-info text-white">
                         Produk
                     </a>
 
@@ -770,14 +786,14 @@ $totalMatcha =
                 <!-- ISI -->
                 <div class="isi-pendapatan">
 
-                    <small>
+                    <small class="text-white">
                         Pendapatan hari ini
                     </small>
 
                     <!-- NOMINAL -->
                     <div class="d-flex align-items-center justify-content-center gap-2">
 
-                        <h4 id="nominalPendapatan" class="mb-0" style="color: #0d6efd;">
+                        <h4 id="nominalPendapatan" class="mb-0 text-white">
                             Rp <?php echo number_format($pendapatan); ?>
                         </h4>
 
@@ -801,11 +817,11 @@ $totalMatcha =
                 <!-- TRANSAKSI -->
                 <div class="text-center">
 
-                    <small>
+                    <small class="text-white">
                         Transaksi hari ini
                     </small>
 
-                    <h2 class="mb-0" style="color: #0d6efd;">
+                    <h2 class="mb-0 text-white">
                         <?php echo $totalTransaksi; ?>
                     </h2>
 
@@ -1069,7 +1085,7 @@ $totalMatcha =
 
             } else {
 
-                nominal.innerHTML = 'Rp 200.000';
+                nominal.innerHTML = 'Rp <?php echo number_format($pendapatan); ?>';
 
                 icon.classList.remove('bi-eye-slash');
                 icon.classList.add('bi-eye');

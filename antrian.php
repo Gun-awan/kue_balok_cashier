@@ -1,6 +1,15 @@
 <?php
 include 'koneksi.php';
 
+session_start();
+
+if(!isset($_SESSION['login'])){
+
+    header("Location: login.php");
+    exit;
+
+}
+
 /** @var mysqli $conn */
 
 // ambil antrian
@@ -235,7 +244,7 @@ $totalSelesai = $dataSelesai['total'];
                     <!-- TRANSAKSI -->
                     <span class="badge bg-success">
 
-                        Transaksi :
+                        Selesai :
                         <?php echo $totalSelesai; ?>
 
                     </span>
@@ -312,7 +321,7 @@ $totalSelesai = $dataSelesai['total'];
                                         <div class="d-flex gap-2 align-items-center">
 
                                             <h5 class="modal-title mb-0">
-                                                <?php echo $a['nama_customer']; ?>
+                                                <?php echo ucwords($a['nama_customer']); ?>
                                             </h5>
 
                                             <?php if ($a['status'] != 'Selesai') { ?>
@@ -510,6 +519,15 @@ $totalSelesai = $dataSelesai['total'];
             </a>
 
         </div>
+        <div class="d-flex align-items-center justify-content-center mt-3">
+                <a
+                    href="logout.php"
+                    class="btn btn-danger d-flex align-items-center justify-content-center gap-2"
+                    style="height:50px; width:100%; border-radius:18px;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <strong>Logout</strong>
+                </a>
+            </div>
 
     </div>
 
@@ -544,7 +562,7 @@ $totalSelesai = $dataSelesai['total'];
                 // jika kurang dari total
                 if (bayar < total) {
 
-                    alert('Uang bayar kurang');
+                    alert('Nominal bayar kurang');
 
                     input.focus();
 
@@ -554,7 +572,7 @@ $totalSelesai = $dataSelesai['total'];
 
                 // konfirmasi selesai
                 let konfirmasi = confirm(
-                    'Pesanan selesai?'
+                    'Selesaikan Pesanan?'
                 );
 
                 // jika oke

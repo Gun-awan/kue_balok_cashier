@@ -96,7 +96,7 @@
     <!-- LOGO -->
     <div class="logo-login">
 
-    <img style="width: 100px; height:100px;" src="assets/logo.png">
+    <img style="width: 100px; height:100px;" src="../assets/logo.png">
 
         <!-- <i class="bi bi-shop"></i> -->
 
