@@ -29,16 +29,23 @@ $optionTopping = '';
 
 while ($t = mysqli_fetch_array($topping)) {
 
+    $selected = '';
+
+    if ($t['id'] == 1) {
+        $selected = 'selected';
+    }
+
     $optionTopping .= '
-    
-        <option 
-    value="' . $t['id'] . '"
-    data-harga="' . $t['harga'] . '"
->
-            ' . $t['nama_topping'] . '
-        </option>
-    
-    ';
+
+    <option 
+        value="' . $t['id'] . '"
+        data-harga="' . $t['harga'] . '"
+        ' . $selected . '
+    >
+        ' . $t['nama_topping'] . '
+    </option>
+
+';
 }
 ?>
 <!DOCTYPE html>
@@ -119,6 +126,26 @@ while ($t = mysqli_fetch_array($topping)) {
             transition: 0.2s;
         }
 
+        .tombol-antrian {
+            aspect-ratio: 1/1;
+
+            border: none;
+            border-radius: 14px;
+            background: white;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            transition: 0.2s;
+        }
+
+        .tombol-antrian:hover{
+            color: white;
+
+        }        
+
         /* ANGKA */
         .angka-menu {
             font-size: 36px;
@@ -138,34 +165,34 @@ while ($t = mysqli_fetch_array($topping)) {
         }
 
         /* WARNA */
-        .tombol-antrian{
-    position: relative;
-    color: white;
+        .tombol-antrian {
+            position: relative;
+            color: black;
             border: none;
-}
+        }
 
-.badge-antrian{
-    position: absolute;
-    top: -5px;
-    right: -5px;
+        .badge-antrian {
+            position: absolute;
+            top: -5px;
+            right: -5px;
 
-    background: red;
-    color: white;
+            background: red;
+            color: white;
 
-    font-size: 12px;
-    font-weight: bold;
+            font-size: 12px;
+            font-weight: bold;
 
-    width: 22px;
-    height: 22px;
+            width: 22px;
+            height: 22px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    border-radius: 50%;
+            border-radius: 50%;
 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
 
         .tombol-dashboard {
             background: #212529;
@@ -339,7 +366,7 @@ while ($t = mysqli_fetch_array($topping)) {
                     </button> -->
 
                         <button type="submit" class="btn btn-success flex-fill" style="border-radius: 15px;"
-                        onclick="return cekPesanan2()">
+                            onclick="return cekPesanan2()">
                             Simpan Pesanan
                         </button>
 
@@ -365,7 +392,7 @@ while ($t = mysqli_fetch_array($topping)) {
             <!-- ISI 4 -->
             <button
                 type="button"
-                class="tombol-menu bg-info"
+                class="tombol-menu bg-danger"
                 onclick="tambahPesanan(2,'Isi 4',4,14000)">
                 <div class="angka-menu">4</div>
                 <div class="text-menu">14K</div>
@@ -383,9 +410,8 @@ while ($t = mysqli_fetch_array($topping)) {
             <!-- ANTRIAN -->
             <button
                 type="button"
-                class="tombol-menu tombol-antrian bg-secondary position-relative"
-                onclick="cekPesanan()"
-            >
+                class="tombol-antrian bg-secondary position-relative"
+                onclick="cekPesanan()">
 
                 <div class="text-antrian">
                     Antrian
@@ -404,35 +430,33 @@ while ($t = mysqli_fetch_array($topping)) {
 
     <script>
         let optionTopping = `
-    
-    <option value="">Tanpa Toping</option>
 
     <?php echo $optionTopping; ?>
 
 `;
     </script>
- 
+
     <script>
-function cekPesanan2(){
+        function cekPesanan2() {
 
-    // cek jumlah item
-    let jumlahPesanan =
-        document.querySelectorAll('.item-pesanan').length;
+            // cek jumlah item
+            let jumlahPesanan =
+                document.querySelectorAll('.item-pesanan').length;
 
-    // jika kosong
-    if(jumlahPesanan < 1){
+            // jika kosong
+            if (jumlahPesanan < 1) {
 
-        alert('Belum ada pesanan');
+                alert('Belum ada pesanan');
 
-        return false;
+                return false;
 
-    }
+            }
 
-    // lanjut submit
-    return true;
+            // lanjut submit
+            return true;
 
-}
-</script>
+        }
+    </script>
 
     <script>
         document
@@ -504,6 +528,16 @@ function cekPesanan2(){
         let total = 0;
 
         function tambahPesanan(produkId, namaProduk, angkaIsi, harga) {
+
+            // ambil topping pertama
+            let temp = document.createElement('div');
+
+            temp.innerHTML = optionTopping;
+
+            let firstOption = temp.querySelector('option');
+
+            let hargaToppingAwal =
+                parseInt(firstOption.getAttribute('data-harga')) || 0;
 
             let rupiah = harga.toLocaleString('id-ID');
 
@@ -593,7 +627,7 @@ function cekPesanan2(){
             <input 
     type="hidden" 
     name="harga_topping[]" 
-    value="0"
+    value="${hargaToppingAwal}"
     class="harga-topping"
 >
 
@@ -611,6 +645,7 @@ function cekPesanan2(){
 
             // tambah total
             total += harga;
+            total += hargaToppingAwal;
 
             updateTotal();
 

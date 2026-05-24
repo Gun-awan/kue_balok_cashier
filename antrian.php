@@ -91,13 +91,12 @@ $totalSelesai = $dataSelesai['total'];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-
-        body{
+        body {
             background: #f4f4f4;
             font-family: Arial, sans-serif;
         }
 
-        .box-antrian{
+        .box-antrian {
 
             height: 75vh;
 
@@ -113,7 +112,7 @@ $totalSelesai = $dataSelesai['total'];
 
         }
 
-        .header-antrian{
+        .header-antrian {
 
             display: flex;
             justify-content: space-between;
@@ -123,14 +122,14 @@ $totalSelesai = $dataSelesai['total'];
 
         }
 
-        .list-antrian{
+        .list-antrian {
 
             flex: 1;
 
             overflow-y: auto;
         }
 
-        .item-antrian{
+        .item-antrian {
 
             border: 1px solid #333;
             border-radius: 10px;
@@ -145,7 +144,7 @@ $totalSelesai = $dataSelesai['total'];
 
         }
 
-        .btn-kasir{
+        .btn-kasir {
 
             width: 100%;
 
@@ -159,104 +158,124 @@ $totalSelesai = $dataSelesai['total'];
 
         }
 
-        .modal-custom{
+        .modal-custom {
 
-    height: 90vh;
+            height: 90vh;
 
-    display: flex;
-    flex-direction: column;
+            display: flex;
+            flex-direction: column;
 
-}
+        }
 
-.modal-body-scroll{
+        .modal-body-scroll {
 
-    flex: 1;
+            flex: 1;
 
-    overflow-y: auto;
+            overflow-y: auto;
 
-}
+        }
 
+        .quick-menu {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 12px;
+
+            margin-top: 25px;
+
+        }
+
+        .quick-menu a {
+
+            border-radius: 18px;
+
+            padding: 14px;
+
+            font-weight: bold;
+
+        }
     </style>
 
 </head>
 
 <body>
 
-<div class="container py-3">
+    <div class="container py-3">
 
-    <!-- BOX -->
-    <div class="box-antrian">
+        <!-- BOX -->
+        <div class="box-antrian">
 
-        <!-- HEADER -->
-        <div class="header-antrian">
+            <!-- HEADER -->
+            <div class="header-antrian">
 
-            <strong>
-                Daftar Antrian
-            </strong>
+                <strong>
+                    Daftar Antrian
+                </strong>
 
-            <div class="d-flex gap-2 flex-wrap">
+                <div class="d-flex gap-2 flex-wrap">
 
-                <!-- ANTRIAN -->
-                <span class="badge bg-primary">
+                    <!-- ANTRIAN -->
+                    <span class="badge bg-primary">
 
-                    Antrian :
-                    <?php echo $totalAntrian; ?>
+                        Antrian :
+                        <?php echo $totalAntrian; ?>
 
-                </span>
+                    </span>
 
-                <!-- PENDING -->
-                <span class="badge bg-warning text-dark">
+                    <!-- PENDING -->
+                    <span class="badge bg-warning text-dark">
 
-                    Pending :
-                    <?php echo $totalPending; ?>
+                        Pending :
+                        <?php echo $totalPending; ?>
 
-                </span>
+                    </span>
 
-                <!-- TRANSAKSI -->
-                <span class="badge bg-success">
+                    <!-- TRANSAKSI -->
+                    <span class="badge bg-success">
 
-                    Transaksi :
-                    <?php echo $totalSelesai; ?>
+                        Transaksi :
+                        <?php echo $totalSelesai; ?>
 
-                </span>
+                    </span>
+
+                </div>
 
             </div>
 
-        </div>
+            <!-- LIST -->
+            <div class="list-antrian">
 
-        <!-- LIST -->
-        <div class="list-antrian">
+                <?php while ($a = mysqli_fetch_array($antrian)) { ?>
 
-            <?php while($a = mysqli_fetch_array($antrian)){ ?>
+                    <?php
 
-            <?php
+                    $warna = 'bg-primary';
 
-$warna = 'bg-primary';
+                    if ($a['status'] == 'Pending') {
+                        $warna = 'bg-warning';
+                    }
 
-if($a['status'] == 'Pending'){
-    $warna = 'bg-warning';
-}
+                    if ($a['status'] == 'Selesai') {
+                        $warna = 'bg-success';
+                    }
 
-if($a['status'] == 'Selesai'){
-    $warna = 'bg-success';
-}
+                    ?>
 
-?>
+                    <button
+                        class="item-antrian w-100 text-white border-0 <?php echo $warna; ?>"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal<?php echo $a['id']; ?>">
 
-<button
-    class="item-antrian w-100 text-white border-0 <?php echo $warna; ?>"
-    data-bs-toggle="modal"
-    data-bs-target="#modal<?php echo $a['id']; ?>"
->
+                        <?php echo ucwords($a['nama_customer']); ?>
 
-                    <?php echo ucwords($a['nama_customer']); ?>
+                    </button>
 
-                </button>
+                    <?php
 
-                <?php
-
-// ambil detail
-$detail = mysqli_query($conn, "
+                    // ambil detail
+                    $detail = mysqli_query($conn, "
 
     SELECT
         detail_transaksi.*,
@@ -271,105 +290,197 @@ $detail = mysqli_query($conn, "
     LEFT JOIN topping
     ON detail_transaksi.topping_id = topping.id
 
-    WHERE transaksi_id='".$a['id']."'
+    WHERE transaksi_id='" . $a['id'] . "'
 
 ");
 
-?>
+                    ?>
 
-<!-- MODAL -->
-<div class="modal fade" id="modal<?php echo $a['id']; ?>">
+                    <!-- MODAL -->
+                    <div class="modal fade" id="modal<?php echo $a['id']; ?>">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 
-        <div class="modal-content rounded-4 modal-custom">
+                            <div class="modal-content rounded-4 modal-custom">
 
-            <!-- HEADER -->
-            <div class="modal-header w-100 flex-shrink-0">
+                                <!-- HEADER -->
+                                <div class="modal-header w-100 flex-shrink-0">
 
-                <div class="d-flex justify-content-between align-items-start w-100">
+                                    <div class="d-flex justify-content-between align-items-start w-100">
 
-                    <!-- KIRI -->
-                    <div class="d-flex gap-2 align-items-center">
+                                        <!-- KIRI -->
+                                        <div class="d-flex gap-2 align-items-center">
 
-                        <h5 class="modal-title mb-0">
-                            <?php echo $a['nama_customer']; ?>
-                        </h5>
+                                            <h5 class="modal-title mb-0">
+                                                <?php echo $a['nama_customer']; ?>
+                                            </h5>
 
-                        <?php if($a['status'] != 'Selesai'){ ?>
+                                            <?php if ($a['status'] != 'Selesai') { ?>
 
-                        <!-- EDIT -->
-                        <a 
-                            href="edit_transaksi.php?id=<?php echo $a['id']; ?>"
-                            class="btn btn-sm btn-warning"
-                        >
-                            <i class="bi bi-pencil"></i>
-                        </a>
+                                                <!-- EDIT -->
+                                                <a
+                                                    href="edit_transaksi.php?id=<?php echo $a['id']; ?>"
+                                                    class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
 
-                        <!-- HAPUS -->
-                        <a 
-                            href="hapus_transaksi.php?id=<?php echo $a['id']; ?>"
-                            class="btn btn-sm btn-danger"
-                            onclick="return confirm('Hapus pesanan ini?')"
-                        >
-                            <i class="bi bi-trash"></i>
-                        </a>
+                                                <!-- HAPUS -->
+                                                <a
+                                                    href="hapus_transaksi.php?id=<?php echo $a['id']; ?>"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Hapus pesanan ini?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
 
-                    <?php } ?>
+                                            <?php } ?>
 
-                    </div>
+                                        </div>
 
-                    <!-- KANAN -->
-                    <div class="d-flex align-items-center gap-2">
+                                        <!-- KANAN -->
+                                        <div class="d-flex align-items-center gap-2">
 
-                        <small class="text-muted">
-                            #<?php echo $a['id']; ?>
-                        </small>
+                                            <small class="text-muted">
+                                                #<?php echo $a['id']; ?>
+                                            </small>
 
-                        <button
-                            class="btn-close"
-                            data-bs-dismiss="modal">
-                        </button>
+                                            <button
+                                                class="btn-close"
+                                                data-bs-dismiss="modal">
+                                            </button>
 
-                    </div>
+                                        </div>
 
-                </div>
+                                    </div>
 
-            </div>
+                                </div>
 
-            <!-- BODY -->
-            <div class="modal-body modal-body-scroll">
+                                <!-- BODY -->
+                                <div class="modal-body modal-body-scroll">
 
-                <?php while($d = mysqli_fetch_array($detail)){ ?>
+                                    <?php while ($d = mysqli_fetch_array($detail)) { ?>
 
-                    <div class="border rounded-3 p-2 mb-2">
+                                        <div class="border rounded-3 p-2 mb-2">
 
-                        <div class="d-flex justify-content-between mb-2">
+                                            <div class="d-flex justify-content-between mb-2">
 
-                            <strong>
-                                <?php echo $d['nama_produk']; ?>
-                            </strong>
+                                                <strong>
+                                                    <?php echo $d['nama_produk']; ?>
+                                                </strong>
 
-                            <strong>
-                                Rp <?php echo number_format($d['subtotal']); ?>
-                            </strong>
+                                                <strong>
+                                                    Rp <?php echo number_format($d['subtotal']); ?>
+                                                </strong>
 
-                        </div>
+                                            </div>
 
-                        <div class="small text-muted">
+                                            <div class="small text-muted">
 
-                            Coklat :
-                            <?php echo $d['qty_coklat']; ?>
+                                                Coklat :
+                                                <?php echo $d['qty_coklat']; ?>
 
-                            <br>
+                                                <br>
 
-                            Matcha :
-                            <?php echo $d['qty_matcha']; ?>
+                                                Matcha :
+                                                <?php echo $d['qty_matcha']; ?>
 
-                            <br>
+                                                <br>
 
-                            Topping :
-                            <?php echo $d['nama_topping'] ?: '-'; ?>
+                                                Topping :
+                                                <?php echo $d['nama_topping'] ?: '-'; ?>
+
+                                            </div>
+
+                                        </div>
+
+                                    <?php } ?>
+
+                                </div>
+
+                                <!-- FOOTER -->
+                                <div class="modal-footer d-block flex-shrink-0">
+
+                                    <!-- TOTAL -->
+                                    <div class="text-end text-danger mb-0">
+
+                                        <strong>Total :</strong>
+
+                                        <strong>
+                                            Rp <?php echo number_format($a['total']); ?>
+                                        </strong>
+
+                                    </div>
+
+                                    <!-- INPUT BAYAR -->
+                                    <div class="mb-2">
+
+                                        <label class="form-label small">
+                                            Bayar
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            class="form-control bayar-input"
+
+                                            data-total="<?php echo $a['total']; ?>"
+
+                                            oninput="hitungKembalian(this)"
+
+                                            placeholder="Masukkan pembayaran"
+
+                                            value="<?php echo $a['bayar']; ?>"
+
+                                            <?php
+                                            if ($a['status'] == 'Selesai') {
+                                                echo 'readonly';
+                                            }
+                                            ?>>
+
+                                    </div>
+
+                                    <!-- KEMBALIAN -->
+                                    <div class="d-flex justify-content-between mb-2">
+
+                                        <strong>Kembalian</strong>
+
+                                        <strong class="text-success kembalian-text">
+                                            Rp <?php echo number_format($a['kembalian']); ?>
+                                        </strong>
+
+                                    </div>
+
+                                    <!-- BUTTON -->
+                                    <?php if ($a['status'] != 'Selesai') { ?>
+
+                                        <div class="d-flex gap-2">
+
+                                            <?php if ($a['status'] == 'Antrian') { ?>
+
+                                                <!-- PENDING -->
+                                                <a
+                                                    href="proses/pending_transaksi.php?id=<?php echo $a['id']; ?>"
+                                                    class="btn btn-warning flex-fill"
+                                                    onclick="return confirm('Pending Pesanan?')">
+                                                    Pending
+                                                </a>
+
+                                            <?php } ?>
+
+                                            <!-- SELESAI -->
+                                            <a
+                                                href="#"
+                                                class="btn btn-success flex-fill btn-selesai"
+                                                data-id="<?php echo $a['id']; ?>"
+                                                onclick="return false;">
+                                                Selesai
+                                            </a>
+
+                                        </div>
+
+                                    <?php } ?>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
@@ -379,217 +490,125 @@ $detail = mysqli_query($conn, "
 
             </div>
 
-            <!-- FOOTER -->
-            <div class="modal-footer d-block flex-shrink-0">
+        </div>
 
-                <!-- TOTAL -->
-                <div class="text-end text-danger mb-0">
+        <!-- BUTTON -->
+        <div class="quick-menu mt-3">
 
-                    <strong>Total :</strong>
+            <a
+                href="admin/dashboard.php"
+                class="btn btn-dark">
+                <i class="bi-grid-1x2-fill"></i>
+                Dashboard
+            </a>
 
-                    <strong>
-                        Rp <?php echo number_format($a['total']); ?>
-                    </strong>
-
-                </div>
-
-                <!-- INPUT BAYAR -->
-                <div class="mb-2">
-
-                    <label class="form-label small">
-                        Bayar
-                    </label>
-
-                    <input
-                        type="number"
-                        class="form-control bayar-input"
-
-                        data-total="<?php echo $a['total']; ?>"
-
-                        oninput="hitungKembalian(this)"
-
-                        placeholder="Masukkan pembayaran"
-
-                        value="<?php echo $a['bayar']; ?>"
-
-                        <?php
-                        if($a['status'] == 'Selesai'){
-                            echo 'readonly';
-                        }
-                        ?>
-                    >
-
-                </div>
-
-                <!-- KEMBALIAN -->
-                <div class="d-flex justify-content-between mb-2">
-
-                    <strong>Kembalian</strong>
-
-                    <strong class="text-success kembalian-text">
-                        Rp <?php echo number_format($a['kembalian']); ?>
-                    </strong>
-
-                </div>
-
-                <!-- BUTTON -->
-               <?php if($a['status'] != 'Selesai'){ ?>
-
-                <div class="d-flex gap-2">
-
-                    <?php if($a['status'] == 'Antrian'){ ?>
-
-                        <!-- PENDING -->
-                        <a
-                            href="proses/pending_transaksi.php?id=<?php echo $a['id']; ?>"
-                            class="btn btn-warning flex-fill"
-                            onclick="return confirm('Pending Pesanan?')"
-                        >
-                            Pending
-                        </a>
-
-                    <?php } ?>
-
-                    <!-- SELESAI -->
-                    <a
-                        href="#"
-                        class="btn btn-success flex-fill btn-selesai"
-                        data-id="<?php echo $a['id']; ?>"
-                        onclick="return false;"
-                    >
-                        Selesai
-                    </a>
-
-                </div>
-
-                <?php } ?>
-
-            </div>
+            <a
+                href="index.php"
+                class="btn btn-secondary">
+                <i class="bi bi-shop"></i>
+                Kasir
+            </a>
 
         </div>
 
     </div>
 
-</div>
+    <script>
+        document.querySelectorAll('.btn-selesai').forEach(btn => {
 
-            <?php } ?>
+            btn.addEventListener('click', function() {
 
-        </div>
+                let modalFooter = this.closest('.modal-footer');
 
-    </div>
+                let input = modalFooter.querySelector('.bayar-input');
 
-    <!-- BUTTON -->
-    <div class="mt-3">
+                let total = parseInt(
+                    input.dataset.total
+                );
 
-        <a href="index.php" class="btn-kasir text-decoration-none d-block text-center bg-secondary text-white">
+                let bayar = parseInt(
+                    input.value
+                ) || 0;
 
-            Ke Kasir
+                // jika kosong
+                if (input.value == '') {
 
-        </a>
+                    alert('Masukan nominal bayar');
 
-    </div>
+                    input.focus();
 
-</div>
+                    return;
 
-<script>
+                }
 
-document.querySelectorAll('.btn-selesai').forEach(btn => {
+                // jika kurang dari total
+                if (bayar < total) {
 
-    btn.addEventListener('click', function () {
+                    alert('Uang bayar kurang');
 
-        let modalFooter = this.closest('.modal-footer');
+                    input.focus();
 
-        let input = modalFooter.querySelector('.bayar-input');
+                    return;
 
-        let total = parseInt(
-            input.dataset.total
-        );
+                }
 
-        let bayar = parseInt(
-            input.value
-        ) || 0;
+                // konfirmasi selesai
+                let konfirmasi = confirm(
+                    'Pesanan selesai?'
+                );
 
-        // jika kosong
-        if(input.value == ''){
+                // jika oke
+                if (konfirmasi) {
 
-            alert('Masukan nominal bayar');
+                    let id = this.dataset.id;
 
-            input.focus();
+                    window.location.href =
+                        'proses/selesai_transaksi.php?id=' + id +
+                        '&bayar=' + bayar;
 
-            return;
+                }
+
+            });
+
+        });
+    </script>
+
+    <script>
+        function hitungKembalian(input) {
+
+            // total
+            let total = parseInt(
+                input.dataset.total
+            );
+
+            // bayar
+            let bayar = parseInt(
+                input.value
+            ) || 0;
+
+            // hitung
+            let kembali = bayar - total;
+
+            // minimal 0
+            if (kembali < 0) {
+
+                kembali = 0;
+
+            }
+
+            // cari text kembalian
+            let modalFooter = input.closest('.modal-footer');
+
+            modalFooter
+                .querySelector('.kembalian-text')
+                .innerHTML =
+                'Rp ' + kembali.toLocaleString('id-ID');
 
         }
+    </script>
 
-        // jika kurang dari total
-        if(bayar < total){
-
-            alert('Uang bayar kurang');
-
-            input.focus();
-
-            return;
-
-        }
-
-        // konfirmasi selesai
-        let konfirmasi = confirm(
-            'Pesanan selesai?'
-        );
-
-        // jika oke
-        if(konfirmasi){
-
-            let id = this.dataset.id;
-
-            window.location.href =
-                'proses/selesai_transaksi.php?id=' + id +
-                '&bayar=' + bayar;
-
-        }
-
-    });
-
-});
-
-</script>
-
-<script>
-
-function hitungKembalian(input){
-
-    // total
-    let total = parseInt(
-        input.dataset.total
-    );
-
-    // bayar
-    let bayar = parseInt(
-        input.value
-    ) || 0;
-
-    // hitung
-    let kembali = bayar - total;
-
-    // minimal 0
-    if(kembali < 0){
-
-        kembali = 0;
-
-    }
-
-    // cari text kembalian
-    let modalFooter = input.closest('.modal-footer');
-
-    modalFooter
-    .querySelector('.kembalian-text')
-    .innerHTML =
-        'Rp ' + kembali.toLocaleString('id-ID');
-
-}
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

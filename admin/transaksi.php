@@ -4,8 +4,12 @@ include '../koneksi.php';
 /** @var mysqli $conn */
 
 // tanggal filter
-$tanggal = isset($_GET['tanggal'])
-    ? $_GET['tanggal']
+$tanggal_dari = isset($_GET['tanggal_dari'])
+    ? $_GET['tanggal_dari']
+    : date('Y-m-d');
+
+$tanggal_sampai = isset($_GET['tanggal_sampai'])
+    ? $_GET['tanggal_sampai']
     : date('Y-m-d');
 
 // ambil transaksi selesai
@@ -15,7 +19,10 @@ $transaksi = mysqli_query($conn, "
     FROM transaksi
 
     WHERE status='Selesai'
-    AND DATE(tanggal)='$tanggal'
+
+    AND DATE(tanggal)
+    BETWEEN '$tanggal_dari'
+    AND '$tanggal_sampai'
 
     ORDER BY id DESC
 
@@ -28,7 +35,10 @@ $totalPendapatan = mysqli_fetch_array(mysqli_query($conn, "
     FROM transaksi
 
     WHERE status='Selesai'
-    AND DATE(tanggal)='$tanggal'
+
+AND DATE(tanggal)
+BETWEEN '$tanggal_dari'
+AND '$tanggal_sampai'
 
 "));
 
@@ -55,268 +65,273 @@ $totalTransaksi = mysqli_num_rows($transaksi);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-
-        body{
-            background:#f4f4f4;
-            font-family:Arial,sans-serif;
+        body {
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
         }
 
-        .container-app{
+        /* CONTAINER */
+        .dashboard-container {
 
-            max-width:500px;
-            margin:auto;
+            max-width: 500px;
 
-            padding:15px;
+            margin: auto;
+
+            padding: 15px;
+
+        }
+
+        /* BOX */
+        .dashboard-box {
+
+            background: white;
+
+            border-radius: 35px;
+
+            padding: 20px;
+
+            min-height: 95vh;
+
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+
+        }
+
+        .header-dashboard {
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 20px;
+
+        }
+
+        .header-left {
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+        }
+
+        .btn-menu {
+
+            width: 42px;
+            height: 42px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background: #f4f4f4;
+
+            font-size: 22px;
+
+        }
+
+        .container-app {
+
+            max-width: 500px;
+            margin: auto;
+
+            padding: 15px;
 
         }
 
         /* HEADER */
-        .header-page{
+        .header-page {
 
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
 
-            margin-bottom:15px;
+            margin-bottom: 15px;
 
         }
 
         /* CARD TOTAL */
-        .card-total{
+        .card-total {
 
-            background:white;
+            background: white;
 
-            border-radius:25px;
+            border-radius: 25px;
 
-            padding:20px;
+            padding: 20px;
 
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-            gap:15px;
+            gap: 15px;
 
-            margin-bottom:15px;
+            margin-bottom: 15px;
 
-            border:2px solid #0d6efd;
-
-        }
-
-        .icon-box{
-
-            width:55px;
-            height:55px;
-
-            border-radius:15px;
-
-            background:#e9f2ff;
-
-            display:flex;
-            justify-content:center;
-            align-items:center;
-
-            font-size:24px;
-
-            color:#0d6efd;
+            border: 2px solid #0d6efd;
 
         }
 
-        .divider{
+        .icon-box {
 
-            width:1px;
-            height:60px;
+            width: 55px;
+            height: 55px;
 
-            background:#ddd;
+            border-radius: 15px;
+
+            background: #e9f2ff;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 24px;
+
+            color: #0d6efd;
+
+        }
+
+        .divider {
+
+            width: 1px;
+            height: 60px;
+
+            background: #ddd;
 
         }
 
         /* FILTER */
-        .filter-box{
+        .filter-box {
 
-            background:white;
+            /* background: #00be19; */
 
-            border-radius:18px;
+            border-radius: 18px;
 
-            padding:15px;
+            padding: 15px;
 
-            margin-bottom:15px;
+            margin-bottom: 15px;
 
         }
 
         /* LIST */
-        .list-transaksi{
+        .list-transaksi {
 
-            display:flex;
-            flex-direction:column;
+            display: flex;
+            flex-direction: column;
 
-            gap:12px;
-
-        }
-
-        .item-transaksi{
-
-            background:white;
-
-            border-radius:18px;
-
-            padding:15px;
-
-            border:1px solid #e5e5e5;
+            gap: 12px;
 
         }
 
-        .tanggal{
+        .item-transaksi {
 
-            font-size:12px;
-            color:#777;
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 15px;
+
+            border: 1px solid #e5e5e5;
+
         }
 
-        .harga{
+        .tanggal {
 
-            color:#198754;
-            font-weight:bold;
+            font-size: 12px;
+            color: #777;
         }
 
-        .modal-custom{
+        .harga {
 
-    height: 90vh;
+            color: #198754;
+            font-weight: bold;
+        }
 
-    display: flex;
-    flex-direction: column;
+        .modal-custom {
 
-}
+            height: 90vh;
 
-.modal-body-scroll{
+            display: flex;
+            flex-direction: column;
 
-    flex: 1;
+        }
 
-    overflow-y: auto;
+        .modal-body-scroll {
 
-}
+            flex: 1;
 
+            overflow-y: auto;
+
+        }
     </style>
 
 </head>
 
 <body>
 
-<div class="container-app">
+    <div class="dashboard-container">
 
-    <!-- HEADER -->
-    <div class="header-page">
+        <div class="dashboard-box">
+            <!-- <div class="container-app"> -->
 
-        <div>
+            <!-- HEADER -->
 
-            <h5 class="mb-0">
-                Data Transaksi
-            </h5>
+            <div class="header-dashboard">
 
-            <small class="text-muted">
-                Transaksi selesai
-            </small>
+                <!-- LEFT -->
+                <div class="header-left">
 
-        </div>
+                    <button class="btn-menu">
+                        <i class="bi-receipt-cutoff"></i>
+                    </button>
 
-        <a
-            href="dashboard.php"
-            class="btn btn-sm btn-secondary"
-        >
-            Kembali
-        </a>
+                    <div>
 
-    </div>
+                        <strong style="font-size:18px;">
+                            Transaksi
+                        </strong>
 
-    <!-- CARD TOTAL -->
-    <div class="card-total">
+                        <div class="small text-muted">
 
-        <!-- KIRI -->
-        <div class="d-flex align-items-center gap-3">
-
-            <div class="icon-box">
-                <i class="bi bi-cash-stack"></i>
-            </div>
-
-            <div>
-
-                <h4 class="mb-0">
-                    Rp <?php echo number_format($totalHariIni); ?>
-                </h4>
-
-                <small class="text-muted">
-                    Pendapatan
-                </small>
-
-            </div>
-
-        </div>
-
-        <!-- GARIS -->
-        <div class="divider"></div>
-
-        <!-- KANAN -->
-        <div class="text-center">
-
-            <h3 class="mb-0">
-                <?php echo $totalTransaksi; ?>
-            </h3>
-
-            <small class="text-muted">
-                Transaksi
-            </small>
-
-        </div>
-
-    </div>
-
-    <!-- FILTER -->
-    <form>
-
-        <div class="filter-box">
-
-            <label class="small mb-1">
-                Filter Tanggal
-            </label>
-
-            <input
-                type="date"
-                name="tanggal"
-                class="form-control"
-                value="<?php echo $tanggal; ?>"
-                onchange="this.form.submit()"
-            >
-
-        </div>
-
-    </form>
-
-    <!-- LIST -->
-    <div class="list-transaksi">
-
-        <?php while($t = mysqli_fetch_array($transaksi)){ ?>
-
-        <div class="item-transaksi">
-
-            <div class="d-flex justify-content-between align-items-start">
-
-                <!-- KIRI -->
-                <div>
-
-                    <strong>
-                        <?php echo ucwords($t['nama_customer']); ?>
-                    </strong>
-
-                    <div class="d-flex align-items-center gap-2 mt-1">
-
-                        <div class="tanggal">
-
-                            <?php
-                            echo date(
-                                'd M Y H:i',
-                                strtotime($t['tanggal'])
-                            );
-                            ?>
+                            Detail & Riwayat Transaksi
 
                         </div>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div>
+
+                    <a
+                        href="dashboard.php"
+                        class="btn btn-sm btn-secondary">
+                        Kembali
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- CARD TOTAL -->
+            <div class="card-total">
+
+                <!-- KIRI -->
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="icon-box">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+
+                    <div>
+
+                    <small class="text-muted">
+                            Pendapatan :
+                        </small>
+
+                        <h4 class="mb-0" style="color: #0d6efd;">
+                            Rp <?php echo number_format($totalHariIni); ?>
+                        </h4>
 
                         
 
@@ -324,33 +339,135 @@ $totalTransaksi = mysqli_num_rows($transaksi);
 
                 </div>
 
-                <div>
+                <!-- GARIS -->
+                <div class="divider"></div>
+
                 <!-- KANAN -->
-                <div class="harga">
+                <div class="text-center">
 
-                    Rp <?php echo number_format($t['total']); ?>
+                    <h3 class="mb-0" style="color: #0d6efd;">
+                        <?php echo $totalTransaksi; ?>
+                    </h3>
 
-                </div>
-                <div class="d-flex align-items-center gap-2 mt-1">
-                <!-- DETAIL -->
-                        <span
-                            class="badge bg-primary"
-                            style="cursor:pointer;"
-                            data-bs-toggle="modal"
-                            data-bs-target="#detail<?php echo $t['id']; ?>"
-                        >
-                            Detail
-                        </span>
-                </div>
+                    <small class="text-muted">
+                        Transaksi
+                    </small>
+
                 </div>
 
             </div>
 
-        </div>
+            <!-- FILTER -->
+            <form>
 
-        <?php
+                <div class="filter-box bg-success">
 
-$detail = mysqli_query($conn, "
+                    <div class="row g-2">
+
+                        <!-- DARI -->
+                        <div class="col-6">
+
+                            <label class="small mb-1 text-white">
+                                Dari
+                            </label>
+
+                            <input
+                                type="date"
+                                name="tanggal_dari"
+                                class="form-control"
+                                value="<?php echo $tanggal_dari; ?>">
+
+                        </div>
+
+                        <!-- SAMPAI -->
+                        <div class="col-6">
+
+                            <label class="small mb-1 text-white">
+                                Sampai
+                            </label>
+
+                            <input
+                                type="date"
+                                name="tanggal_sampai"
+                                class="form-control"
+                                value="<?php echo $tanggal_sampai; ?>">
+
+                        </div>
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button class="btn btn-light w-100 mt-3">
+
+                        Filter Transaksi
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <!-- LIST -->
+            <div class="list-transaksi">
+
+                <?php while ($t = mysqli_fetch_array($transaksi)) { ?>
+
+                    <div class="item-transaksi">
+
+                        <div class="d-flex justify-content-between align-items-start">
+
+                            <!-- KIRI -->
+                            <div>
+
+                                <strong>
+                                    <?php echo ucwords($t['nama_customer']); ?>
+                                </strong>
+
+                                <div class="d-flex align-items-center gap-2 mt-1">
+
+                                    <div class="tanggal">
+
+                                        <?php
+                                        echo date(
+                                            'd M Y H:i',
+                                            strtotime($t['tanggal'])
+                                        );
+                                        ?>
+
+                                    </div>
+
+
+
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <!-- KANAN -->
+                                <div class="harga">
+
+                                    Rp <?php echo number_format($t['total']); ?>
+
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-1">
+                                    <!-- DETAIL -->
+                                    <span
+                                        class="badge bg-primary"
+                                        style="cursor:pointer;"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#detail<?php echo $t['id']; ?>">
+                                        Detail
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <?php
+
+                    $detail = mysqli_query($conn, "
 
     SELECT
         detail_transaksi.*,
@@ -365,150 +482,151 @@ $detail = mysqli_query($conn, "
     LEFT JOIN topping
     ON detail_transaksi.topping_id = topping.id
 
-    WHERE transaksi_id='".$t['id']."'
+    WHERE transaksi_id='" . $t['id'] . "'
 
 ");
 
-?>
+                    ?>
 
-<!-- MODAL DETAIL -->
-<div
-    class="modal fade"
-    id="detail<?php echo $t['id']; ?>"
->
+                    <!-- MODAL DETAIL -->
+                    <div
+                        class="modal fade"
+                        id="detail<?php echo $t['id']; ?>">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 
-        <div class="modal-content rounded-4 modal-custom">
+                            <div class="modal-content rounded-4 modal-custom">
 
-            <!-- HEADER -->
-            <div class="modal-header flex-shrink-0">
+                                <!-- HEADER -->
+                                <div class="modal-header flex-shrink-0">
 
-                <div>
+                                    <div>
 
-                    <h5 class="mb-0">
-                        <?php echo ucwords($t['nama_customer']); ?>
-                    </h5>
+                                        <h5 class="mb-0">
+                                            <?php echo ucwords($t['nama_customer']); ?>
+                                        </h5>
 
-                    <small class="text-muted">
-                        Detail Pesanan
-                    </small>
+                                        <small class="text-muted">
+                                            Detail Pesanan
+                                        </small>
 
-                </div>
+                                    </div>
 
-                <button
-                    class="btn-close"
-                    data-bs-dismiss="modal">
-                </button>
+                                    <button
+                                        class="btn-close"
+                                        data-bs-dismiss="modal">
+                                    </button>
 
-            </div>
+                                </div>
 
-            <!-- BODY -->
-            <div class="modal-body modal-body-scroll">
+                                <!-- BODY -->
+                                <div class="modal-body modal-body-scroll">
 
-                <?php while($d = mysqli_fetch_array($detail)){ ?>
+                                    <?php while ($d = mysqli_fetch_array($detail)) { ?>
 
-                <div class="border rounded-3 p-3 mb-3">
+                                        <div class="border rounded-3 p-3 mb-3">
 
-                    <!-- TOP -->
-                    <div class="d-flex justify-content-between mb-2">
+                                            <!-- TOP -->
+                                            <div class="d-flex justify-content-between mb-2">
 
-                        <strong>
-                            <?php echo $d['nama_produk']; ?>
-                        </strong>
+                                                <strong>
+                                                    <?php echo $d['nama_produk']; ?>
+                                                </strong>
 
-                        <strong class="text-success">
+                                                <strong class="text-success">
 
-                            Rp <?php echo number_format($d['subtotal']); ?>
+                                                    Rp <?php echo number_format($d['subtotal']); ?>
 
-                        </strong>
+                                                </strong>
+
+                                            </div>
+
+                                            <!-- DETAIL -->
+                                            <div class="small text-muted">
+
+                                                Coklat :
+                                                <?php echo $d['qty_coklat']; ?>
+
+                                                <br>
+
+                                                Matcha :
+                                                <?php echo $d['qty_matcha']; ?>
+
+                                                <br>
+
+                                                Topping :
+                                                <?php echo $d['nama_topping'] ?: '-'; ?>
+
+                                            </div>
+
+                                        </div>
+
+                                    <?php } ?>
+
+                                </div>
+
+                                <!-- FOOTER -->
+                                <div class="modal-footer d-block flex-shrink-0">
+
+                                    <!-- TOTAL -->
+                                    <div class="d-flex justify-content-between mb-2">
+
+                                        <strong>Total</strong>
+
+                                        <strong class="text-success">
+
+                                            Rp <?php echo number_format($t['total']); ?>
+
+                                        </strong>
+
+                                    </div>
+
+                                    <!-- BAYAR -->
+                                    <div class="d-flex justify-content-between mb-2">
+
+                                        <span class="text-muted">
+                                            Bayar
+                                        </span>
+
+                                        <strong>
+
+                                            Rp <?php echo number_format($t['bayar']); ?>
+
+                                        </strong>
+
+                                    </div>
+
+                                    <!-- KEMBALIAN -->
+                                    <div class="d-flex justify-content-between">
+
+                                        <span class="text-muted">
+                                            Kembalian
+                                        </span>
+
+                                        <strong class="text-primary">
+
+                                            Rp <?php echo number_format($t['kembalian']); ?>
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
-
-                    <!-- DETAIL -->
-                    <div class="small text-muted">
-
-                        Coklat :
-                        <?php echo $d['qty_coklat']; ?>
-
-                        <br>
-
-                        Matcha :
-                        <?php echo $d['qty_matcha']; ?>
-
-                        <br>
-
-                        Topping :
-                        <?php echo $d['nama_topping'] ?: '-'; ?>
-
-                    </div>
-
-                </div>
 
                 <?php } ?>
 
             </div>
 
-            <!-- FOOTER -->
-            <div class="modal-footer d-block flex-shrink-0">
-
-                <!-- TOTAL -->
-                <div class="d-flex justify-content-between mb-2">
-
-                    <strong>Total</strong>
-
-                    <strong class="text-success">
-
-                        Rp <?php echo number_format($t['total']); ?>
-
-                    </strong>
-
-                </div>
-
-                <!-- BAYAR -->
-                <div class="d-flex justify-content-between mb-2">
-
-                    <span class="text-muted">
-                        Bayar
-                    </span>
-
-                    <strong>
-
-                        Rp <?php echo number_format($t['bayar']); ?>
-
-                    </strong>
-
-                </div>
-
-                <!-- KEMBALIAN -->
-                <div class="d-flex justify-content-between">
-
-                    <span class="text-muted">
-                        Kembalian
-                    </span>
-
-                    <strong class="text-primary">
-
-                        Rp <?php echo number_format($t['kembalian']); ?>
-
-                    </strong>
-
-                </div>
-
-            </div>
-
         </div>
-
     </div>
 
-</div>
-
-        <?php } ?>
-
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
