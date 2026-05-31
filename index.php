@@ -3,11 +3,10 @@ include 'koneksi.php';
 
 session_start();
 
-if(!isset($_SESSION['login'])){
+if (!isset($_SESSION['login'])) {
 
     header("Location: login.php");
     exit;
-
 }
 
 /** @var mysqli $conn */
@@ -85,7 +84,7 @@ while ($t = mysqli_fetch_array($topping)) {
 
             padding: 14px;
             gap: 14px;
-        }
+        } 
 
         /* BOX BESAR */
         .box-pesanan {
@@ -112,15 +111,15 @@ while ($t = mysqli_fetch_array($topping)) {
         }
 
         /* MENU BAWAH */
-        .menu-grid {
+        /* .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
 
             gap: 10px;
-        }
+        } */
 
         /* BUTTON */
-        .tombol-menu {
+        /* .tombol-menu {
             aspect-ratio: 1/1;
 
             border: none;
@@ -133,9 +132,12 @@ while ($t = mysqli_fetch_array($topping)) {
             align-items: center;
 
             transition: 0.2s;
-        }
+        } */
 
         .tombol-antrian {
+
+        width: 85px;
+    height: 85px;
             aspect-ratio: 1/1;
 
             border: none;
@@ -150,10 +152,10 @@ while ($t = mysqli_fetch_array($topping)) {
             transition: 0.2s;
         }
 
-        .tombol-antrian:hover{
+        .tombol-antrian:hover {
             color: white;
 
-        }        
+        }
 
         /* ANGKA */
         .angka-menu {
@@ -168,7 +170,7 @@ while ($t = mysqli_fetch_array($topping)) {
 
         /* BUTTON TEXT */
         .text-antrian {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             text-align: center;
         }
@@ -219,7 +221,7 @@ while ($t = mysqli_fetch_array($topping)) {
             flex: 1;
 
             background: white;
-            border: 1px solid #7e7676;
+            /* border: 1px solid #7e7676; */
             border-radius: 20px;
 
             padding: 10px 20px 10px 20px;
@@ -310,6 +312,73 @@ while ($t = mysqli_fetch_array($topping)) {
             font-size: 18px;
             font-weight: bold;
         }
+
+        .menu-wrapper {
+
+            width: 100%;
+
+            display: flex;
+
+            justify-content: center;
+
+            margin-top: 8px;
+
+        }
+
+        .menu-grid {
+
+            display: flex;
+
+            gap: 10px;
+
+            justify-content: center;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+        }
+
+        .tombol-menu {
+
+            width: 85px;
+            height: 85px;
+
+            border: none;
+
+            border-radius: 18px;
+
+            color: black;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+
+            align-items: center;
+
+            position: relative;
+
+        }
+
+        .angka-menu {
+
+            font-size: 28px;
+
+            font-weight: bold;
+
+            line-height: 1;
+
+        }
+
+        .text-menu {
+
+            font-size: 14px;
+
+            margin-top: 2px;
+
+        }
     </style>
 </head>
 
@@ -387,55 +456,103 @@ while ($t = mysqli_fetch_array($topping)) {
         </form>
 
         <!-- MENU BUTTON -->
-        <div class="menu-grid">
+        <!-- <div class="menu-wrapper"> -->
 
-            <!-- ISI 3 -->
-            <button
-                type="button"
-                class="tombol-menu bg-warning"
-                onclick="tambahPesanan(1,'Isi 3',3,11000)">
-                <div class="angka-menu">3</div>
-                <div class="text-menu">11K</div>
-            </button>
+            <?php
 
-            <!-- ISI 4 -->
-            <button
+            $produk = mysqli_query($conn, "
+
+    SELECT *
+    FROM produk
+
+    ORDER BY id ASC
+
+");
+
+            ?>
+
+            <div class="menu-grid">
+
+                <?php while ($p = mysqli_fetch_array($produk)) { ?>
+
+                    <?php
+
+                    // ambil angka isi
+                    $isi = str_replace(
+                        'Isi ',
+                        '',
+                        $p['nama_produk']
+                    );
+
+                    // warna otomatis
+                    $warna = 'bg-primary';
+
+                    if ($isi == 3) {
+                        $warna = 'bg-warning';
+                    }
+
+                    if ($isi == 4) {
+                        $warna = 'bg-danger';
+                    }
+
+                    ?>
+
+                    <!-- ISI 3 -->
+                    <button
+                        type="button"
+                        class="tombol-menu <?php echo $warna; ?>"
+                        onclick="tambahPesanan(
+            <?php echo $p['id']; ?>,
+            '<?php echo $p['nama_produk']; ?>',
+            <?php echo $isi; ?>,
+            <?php echo $p['harga']; ?>
+        )">
+                        <div class="angka-menu"><?php echo $isi; ?></div>
+                        <div class="text-menu"><?php echo number_format($p['harga'] / 1000); ?>K</div>
+                    </button>
+
+                    <!-- ISI 4 -->
+                    <!-- <button
                 type="button"
                 class="tombol-menu bg-danger"
                 onclick="tambahPesanan(2,'Isi 4',4,14000)">
                 <div class="angka-menu">4</div>
                 <div class="text-menu">14K</div>
-            </button>
+            </button> -->
 
-            <!-- ISI 5 -->
-            <button
+                    <!-- ISI 5 -->
+                    <!-- <button
                 type="button"
                 class="tombol-menu bg-primary"
                 onclick="tambahPesanan(3,'Isi 5',5,17000)">
                 <div class="angka-menu">5</div>
                 <div class="text-menu">17K</div>
-            </button>
+            </button> -->
 
-            <!-- ANTRIAN -->
-            <button
-                type="button"
-                class="tombol-antrian bg-secondary position-relative"
-                onclick="cekPesanan()">
+                <?php } ?>
 
-                <div class="text-antrian">
-                    Antrian
-                </div>
+                <!-- ANTRIAN -->
+                <button
+                    type="button"
+                    class="tombol-antrian bg-secondary position-relative"
+                    onclick="cekPesanan()">
 
-                <!-- BADGE -->
-                <span class="badge-antrian">
-                    <?php echo $total; ?>
-                </span>
+                    <div class="text-antrian">
+                        Antrian
+                    </div>
 
-            </button>
+                    <!-- BADGE -->
+                    <span class="badge-antrian">
+                        <?php echo $total; ?>
+                    </span>
+
+                </button>
+
+            </div>
 
         </div>
 
-    </div>
+    <!-- </div> -->
 
     <script>
         let optionTopping = `

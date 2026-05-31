@@ -250,7 +250,7 @@ $totalMatcha =
 
             margin: auto;
 
-            padding: 15px;
+            /* padding: 15px; */
 
         }
 
@@ -259,7 +259,7 @@ $totalMatcha =
 
             background: white;
 
-            border-radius: 35px;
+            /* border-radius: 35px; */
 
             padding: 20px;
 

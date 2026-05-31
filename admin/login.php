@@ -127,7 +127,7 @@
     <?php } ?>
 
     <!-- FORM -->
-    <form action="proses/proses_login.php" method="POST">
+    <form action="../proses_login.php" method="POST">
 
         <!-- USERNAME -->
         <div class="mb-3">

@@ -32,29 +32,29 @@ $detail = mysqli_query($conn, "
 
 // topping
 $topping = mysqli_query($conn, "
-
     SELECT *
     FROM topping
     WHERE status='Aktif'
-
 ");
 
-// option topping
+$toppingData = [];
 $optionTopping = '';
 
 while($t = mysqli_fetch_array($topping)){
 
-    $optionTopping .= '
+    $toppingData[] = $t;
 
+    $optionTopping .= '
         <option
             value="'.$t['id'].'"
             data-harga="'.$t['harga'].'"
         >
             '.$t['nama_topping'].'
         </option>
-
     ';
 }
+
+$firstTop = $toppingData[0] ?? null;
 ?>
 
 <!DOCTYPE html>
@@ -152,6 +152,11 @@ body{
     font-weight:bold;
 }
 
+.text-kembali{
+    font-size:16px;
+    font-weight:bold;
+}
+
 .text-menu{
     font-size:12px;
 }
@@ -166,6 +171,65 @@ body{
     align-items:center;
     font-weight:bold;
 }
+
+/* .menu-grid{
+
+    display: flex;
+
+    gap: 10px;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+}
+
+.tombol-menu:hover{
+    color: #f4f4f4;
+}
+
+.tombol-menu{
+
+    width: 85px;
+    height: 85px;
+
+    border: none;
+
+    border-radius: 18px;
+
+    color: black;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    position: relative;
+
+}
+
+.angka-menu{
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    line-height: 1;
+
+}
+
+.text-menu{
+
+    font-size: 14px;
+
+    margin-top: 2px;
+
+} */
 
 </style>
 
@@ -199,13 +263,6 @@ body{
             </div>
 
         </div>
-
-        <a
-            href="antrian.php"
-            class="btn btn-sm btn-secondary"
-        >
-            Kembali
-        </a>
 
     </div>
 
@@ -278,7 +335,7 @@ body{
                     <input
                         type="number"
                         name="qty_coklat[]"
-                        class="form-control qty-coklat"
+                        class="form-control form-select-sm qty-coklat"
                         value="<?php echo $d['qty_coklat']; ?>"
                         oninput="updateSisa(this)"
                     >
@@ -293,7 +350,7 @@ body{
                     <input
                         type="number"
                         name="qty_matcha[]"
-                        class="form-control qty-matcha"
+                        class="form-control form-select-sm qty-matcha"
                         value="<?php echo $d['qty_matcha']; ?>"
                         oninput="updateSisa(this)"
                     >
@@ -306,46 +363,53 @@ body{
                     <small>Topping</small>
 
                     <select
-                        name="topping_id[]"
-                        class="form-select topping-select"
-                        onchange="ubahTopping(this)"
-                    >
+    name="topping_id[]"
+    class="form-select form-select-sm topping-select"
+    onchange="ubahTopping(this)"
+>
 
-                        <option value="">
-                            Tanpa Toping
-                        </option>
+    <!-- <option value="">
+        Tanpa Topping
+    </option> -->
 
-                        <?php
+    <?php foreach($toppingData as $t){ ?>
 
-                        $top2 = mysqli_query($conn,"
-                            SELECT * FROM topping
-                            WHERE status='Aktif'
-                        ");
+    <option
+        value="<?php echo $t['id']; ?>"
+        data-harga="<?php echo $t['harga']; ?>"
 
-                        while($t = mysqli_fetch_array($top2)){
-                        ?>
+        <?php
 
-                        <option
-                            value="<?php echo $t['id']; ?>"
-                            data-harga="<?php echo $t['harga']; ?>"
-                            <?php
-                            if($d['topping_id'] == $t['id']){
-                                echo 'selected';
-                            }
-                            ?>
-                        >
-                            <?php echo $t['nama_topping']; ?>
-                        </option>
+        if($d['topping_id'] == $t['id']){
 
-                        <?php } ?>
+            echo 'selected';
 
-                    </select>
+        }
+
+        else if(
+            empty($d['topping_id']) &&
+            $firstTop &&
+            $t['id'] == $firstTop['id']
+        ){
+
+            echo 'selected';
+
+        }
+
+        ?>
+    >
+        <?php echo $t['nama_topping']; ?>
+    </option>
+
+    <?php } ?>
+
+</select>
 
                     <input
-                        type="hidden"
-                        class="harga-topping"
-                        value="0"
-                    >
+                    type="hidden"
+                    class="harga-topping"
+                    value="<?php echo $firstTop['harga']; ?>"
+                >
 
                 </div>
 
@@ -381,18 +445,60 @@ body{
 </form>
 
 <!-- MENU -->
+<div class="menu-wrapper">
+
+        <?php
+
+$produk = mysqli_query($conn, "
+
+    SELECT *
+    FROM produk
+
+    ORDER BY id ASC
+
+");
+
+?>
+
 <div class="menu-grid">
 
-    <button
-        type="button"
-        class="tombol-menu bg-warning"
-        onclick="tambahPesanan(1,'Isi 3',11000,3)"
-    >
-        <div class="angka-menu">3</div>
-        <div class="text-menu">11K</div>
-    </button>
+<?php while($p = mysqli_fetch_array($produk)){ ?>
 
+    <?php
+
+    // ambil angka isi
+    $isi = str_replace(
+        'Isi ',
+        '',
+        $p['nama_produk']
+    );
+
+    // warna otomatis
+    $warna = 'bg-primary';
+
+    if($isi == 3){
+        $warna = 'bg-warning';
+    }
+
+    if($isi == 4){
+        $warna = 'bg-danger';
+    }
+
+    ?>
     <button
+                type="button"
+                class="tombol-menu <?php echo $warna; ?>"
+                onclick="tambahPesanan(
+            <?php echo $p['id']; ?>,
+            '<?php echo $p['nama_produk']; ?>',
+            <?php echo $isi; ?>,
+            <?php echo $p['harga']; ?>
+        )">
+                <div class="angka-menu"><?php echo $isi; ?></div>
+                <div class="text-menu"><?php echo number_format($p['harga'] / 1000); ?>K</div>
+            </button>
+
+    <!-- <button
         type="button"
         class="tombol-menu bg-info"
         onclick="tambahPesanan(2,'Isi 4',14000,4)"
@@ -408,11 +514,34 @@ body{
     >
         <div class="angka-menu">5</div>
         <div class="text-menu">17K</div>
-    </button>
+    </button> -->
+    <?php } ?>
+
+    <a
+            href="antrian.php"
+            class="btn btn-sm btn-secondary tombol-menu"
+        >
+            <div class="text-kembali"> Kembali </div>
+        </a>
 
 </div>
 
 </div>
+</div>
+
+<script>
+window.onload = function(){
+
+    document
+    .querySelectorAll('.topping-select')
+    .forEach(function(select){
+
+        ubahTopping(select);
+
+    });
+
+}
+</script>
 
 <script>
         document
@@ -462,7 +591,6 @@ body{
 let total = 0;
 
 let optionTopping = `
-<option value="">Tanpa Toping</option>
 <?php echo $optionTopping; ?>
 `;
 
@@ -582,7 +710,7 @@ function hapusItem(button){
 
 }
 
-function tambahPesanan(id,nama,harga,isi){
+function tambahPesanan(id,nama,isi,harga){
 
     let html = `
 
@@ -592,9 +720,9 @@ function tambahPesanan(id,nama,harga,isi){
 
     <input type="hidden" name="produk_id[]" value="${id}">
 
-    <input type="hidden" class="harga-produk" value="${harga}">
-
     <input type="hidden" class="max-isi" value="${isi}">
+
+    <input type="hidden" class="harga-produk" value="${harga}">
 
     <div class="d-flex justify-content-between align-items-start mb-2">
 
@@ -667,10 +795,10 @@ function tambahPesanan(id,nama,harga,isi){
             </select>
 
             <input
-                type="hidden"
-                class="harga-topping"
-                value="0"
-            >
+    type="hidden"
+    class="harga-topping"
+    value="<?php echo $firstTop['harga'] ?? 0; ?>"
+>
 
         </div>
 
@@ -683,25 +811,40 @@ function tambahPesanan(id,nama,harga,isi){
     document
     .getElementById('daftarPesanan')
     .insertAdjacentHTML('beforeend', html);
+    let items = document.querySelectorAll('.item-pesanan');
+let lastItem = items[items.length - 1];
+
+ubahTopping(
+    lastItem.querySelector('.topping-select')
+);
 
     hitungTotal();
 
 }
 
 // INIT
-document
-.querySelectorAll('.item-pesanan')
-.forEach(function(item){
+window.onload = function(){
 
-    updateSisa(
-        item.querySelector('.qty-coklat')
-    );
+    document
+    .querySelectorAll('.item-pesanan')
+    .forEach(function(item){
 
-    ubahTopping(
-        item.querySelector('.topping-select')
-    );
+        updateSisa(
+            item.querySelector('.qty-coklat')
+        );
 
-});
+        let select =
+            item.querySelector('.topping-select');
+
+        if(select){
+            ubahTopping(select);
+        }
+
+    });
+
+    hitungTotal();
+
+}
 
 </script>
 

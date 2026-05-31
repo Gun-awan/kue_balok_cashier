@@ -6,6 +6,7 @@ include '../koneksi.php';
 
 $nama_customer = $_POST['nama_customer'];
 $total = $_POST['total'];
+$token = md5(uniqid());
 
 // simpan transaksi
 mysqli_query($conn, "
@@ -13,7 +14,8 @@ mysqli_query($conn, "
     (
         nama_customer,
         total,
-        status
+        status,
+        token
     )
 
     VALUES
@@ -21,7 +23,8 @@ mysqli_query($conn, "
     (
         '$nama_customer',
         '$total',
-        'Antrian'
+        'Antrian',
+        '$token'
     )
 
 ");

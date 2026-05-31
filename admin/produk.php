@@ -64,7 +64,7 @@ body{
 
             margin: auto;
 
-            padding: 15px;
+            /* padding: 15px; */
 
         }
 
@@ -73,7 +73,7 @@ body{
 
             background: white;
 
-            border-radius: 35px;
+            /* border-radius: 35px; */
 
             padding: 20px;
 
@@ -218,30 +218,6 @@ body{
 
             </div>
 
-    <!-- HEADER -->
-    <!-- <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <div>
-
-            <h5 class="mb-0">
-                Produk
-            </h5>
-
-            <small class="text-muted">
-                Kelola menu & topping
-            </small>
-
-        </div>
-
-        <a
-            href="dashboard.php"
-            class="btn btn-secondary btn-sm"
-        >
-            Kembali
-        </a>
-
-    </div> -->
-
     <!-- PORSI -->
     <div class="section-box">
 
@@ -265,45 +241,149 @@ body{
 
         <?php while($p = mysqli_fetch_array($produk)){ ?>
 
-        <div class="item-card">
+<div class="item-card">
 
-            <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center">
 
-                <div>
+        <div>
 
-                    <strong>
-                        <?php echo $p['nama_produk']; ?>
-                    </strong>
+            <strong>
+                <?php echo $p['nama_produk']; ?>
+            </strong>
 
-                    <div class="small text-muted">
+            <div class="small text-muted">
 
-                        Rp <?php echo number_format($p['harga']); ?>
-
-                    </div>
-
-                </div>
-
-                <div class="d-flex gap-2 align-items-center">
-
-                    <span class="badge bg-success badge-status">
-
-                        <?php echo $p['status']; ?>
-
-                    </span>
-
-                    <button class="btn btn-warning btn-sm">
-
-                        <i class="bi bi-pencil"></i>
-
-                    </button>
-
-                </div>
+                Rp <?php echo number_format($p['harga']); ?>
 
             </div>
 
         </div>
 
-        <?php } ?>
+        <!-- BUTTON -->
+        <div class="d-flex gap-2">
+
+            <!-- EDIT -->
+            <button
+                class="btn btn-warning btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#modalEditProduk<?php echo $p['id']; ?>"
+            >
+                <i class="bi bi-pencil"></i>
+            </button>
+
+            <!-- HAPUS -->
+            <a
+                href="../proses/hapus_produk.php?id=<?php echo $p['id']; ?>"
+                class="btn btn-danger btn-sm"
+                onclick="return confirm('Hapus porsi ini?')"
+            >
+                <i class="bi bi-trash"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php } ?>
+
+<?php mysqli_data_seek($produk,0); ?>
+
+<?php while($p = mysqli_fetch_array($produk)){ ?>
+
+<div
+    class="modal fade"
+    id="modalEditProduk<?php echo $p['id']; ?>"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content rounded-4">
+
+            <form
+                action="../proses/update_produk.php"
+                method="POST"
+            >
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Edit Porsi
+
+                    </h5>
+
+                    <button
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="<?php echo $p['id']; ?>"
+                    >
+
+                    <!-- NAMA -->
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Nama Porsi
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nama_produk"
+                            class="form-control"
+                            value="<?php echo $p['nama_produk']; ?>"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- HARGA -->
+                    <div class="mb-2">
+
+                        <label class="form-label">
+                            Harga
+                        </label>
+
+                        <input
+                            type="number"
+                            name="harga"
+                            class="form-control"
+                            value="<?php echo $p['harga']; ?>"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-success w-100">
+
+                        Update
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php } ?>
 
     </div>
 
@@ -387,11 +467,27 @@ body{
 
                 </div>
 
-                <button class="btn btn-warning btn-sm">
+                <div class="d-flex gap-2">
 
-                    <i class="bi bi-pencil"></i>
+                    <!-- EDIT -->
+                    <button
+                        class="btn btn-warning btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalEditTopping<?php echo $t['id']; ?>"
+                    >
+                        <i class="bi bi-pencil"></i>
+                    </button>
 
-                </button>
+                    <!-- HAPUS -->
+                    <a
+                        href="../proses/hapus_topping.php?id=<?php echo $t['id']; ?>"
+                        class="btn btn-danger btn-sm"
+                        onclick="return confirm('Hapus topping ini?')"
+                    >
+                        <i class="bi bi-trash"></i>
+                    </a>
+
+                </div>
 
             </div>
 
@@ -399,6 +495,100 @@ body{
 
         <?php } ?>
 
+        <?php mysqli_data_seek($topping,0); ?>
+
+<?php while($t = mysqli_fetch_array($topping)){ ?>
+
+<div
+    class="modal fade"
+    id="modalEditTopping<?php echo $t['id']; ?>"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content rounded-4">
+
+            <form
+                action="../proses/update_topping.php"
+                method="POST"
+            >
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Edit Topping
+                    </h5>
+
+                    <button
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="<?php echo $t['id']; ?>"
+                    >
+
+                    <!-- NAMA -->
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Nama Topping
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nama_topping"
+                            class="form-control"
+                            value="<?php echo $t['nama_topping']; ?>"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- HARGA -->
+                    <div class="mb-2">
+
+                        <label class="form-label">
+                            Harga
+                        </label>
+
+                        <input
+                            type="number"
+                            name="harga"
+                            class="form-control"
+                            value="<?php echo $t['harga']; ?>"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-success w-100">
+
+                        Update
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php } ?>
     </div>
         
         </div>

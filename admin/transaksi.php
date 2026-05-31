@@ -93,7 +93,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
 
             margin: auto;
 
-            padding: 15px;
+            /* padding: 15px; */
 
         }
 
@@ -102,7 +102,7 @@ $totalTransaksi = mysqli_num_rows($transaksi);
 
             background: white;
 
-            border-radius: 35px;
+            /* border-radius: 35px; */
 
             padding: 20px;
 
@@ -486,19 +486,23 @@ $totalTransaksi = mysqli_num_rows($transaksi);
                     $detail = mysqli_query($conn, "
 
     SELECT
-        detail_transaksi.*,
-        produk.nama_produk,
-        topping.nama_topping
+    detail_transaksi.*,
 
-    FROM detail_transaksi
+    produk.nama_produk,
+    produk.harga AS harga_produk,
 
-    LEFT JOIN produk
-    ON detail_transaksi.produk_id = produk.id
+    topping.nama_topping,
+    topping.harga AS harga_topping
 
-    LEFT JOIN topping
-    ON detail_transaksi.topping_id = topping.id
+FROM detail_transaksi
 
-    WHERE transaksi_id='" . $t['id'] . "'
+LEFT JOIN produk
+ON detail_transaksi.produk_id = produk.id
+
+LEFT JOIN topping
+ON detail_transaksi.topping_id = topping.id
+
+WHERE transaksi_id='".$t['id']."'
 
 ");
 
@@ -545,9 +549,16 @@ $totalTransaksi = mysqli_num_rows($transaksi);
                                             <!-- TOP -->
                                             <div class="d-flex justify-content-between mb-2">
 
+                                            <div>
                                                 <strong>
                                                     <?php echo $d['nama_produk']; ?>
                                                 </strong>
+
+                                                    <small class="d-block text-muted">
+                                                        Rp <?php echo number_format($d['harga_produk']); ?>
+                                                    </small> 
+
+                                            </div>
 
                                                 <strong class="text-success">
 
@@ -571,7 +582,20 @@ $totalTransaksi = mysqli_num_rows($transaksi);
                                                 <br>
 
                                                 Topping :
-                                                <?php echo $d['nama_topping'] ?: '-'; ?>
+                                                        <?php
+                                                        if($d['nama_topping']){
+
+                                                            echo $d['nama_topping'] .
+                                                                ' (Rp ' .
+                                                                number_format($d['harga_topping']) .
+                                                                ')';
+
+                                                        }else{
+
+                                                            echo '-';
+
+                                                        }
+                                                        ?>
 
                                             </div>
 

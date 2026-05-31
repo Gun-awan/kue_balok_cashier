@@ -3,11 +3,10 @@ include 'koneksi.php';
 
 session_start();
 
-if(!isset($_SESSION['login'])){
+if (!isset($_SESSION['login'])) {
 
     header("Location: login.php");
     exit;
-
 }
 
 /** @var mysqli $conn */
@@ -254,236 +253,214 @@ $totalSelesai = $dataSelesai['total'];
             </div>
 
             <!-- LIST -->
-            <div class="list-antrian">
+<div class="list-antrian">
 
-                <?php while ($a = mysqli_fetch_array($antrian)) { ?>
+<?php while ($a = mysqli_fetch_array($antrian)) { ?>
 
-                    <?php
+    <?php
 
-                    $warna = 'bg-primary';
+    $warna = 'bg-primary';
 
-                    if ($a['status'] == 'Pending') {
-                        $warna = 'bg-warning';
-                    }
+    if ($a['status'] == 'Pending') {
+        $warna = 'bg-warning';
+    }
 
-                    if ($a['status'] == 'Selesai') {
-                        $warna = 'bg-success';
-                    }
+    if ($a['status'] == 'Selesai') {
+        $warna = 'bg-success';
+    }
 
-                    ?>
+    // ambil detail
+    $detail = mysqli_query($conn, "
 
-                    <button
-                        class="item-antrian w-100 text-white border-0 <?php echo $warna; ?>"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modal<?php echo $a['id']; ?>">
+        SELECT
+            detail_transaksi.*,
+            produk.nama_produk,
+            produk.harga as harga_produk,
+            topping.nama_topping,
+            topping.harga as harga_topping
 
-                        <?php echo ucwords($a['nama_customer']); ?>
+        FROM detail_transaksi
 
-                    </button>
+        LEFT JOIN produk
+        ON detail_transaksi.produk_id = produk.id
 
-                    <?php
+        LEFT JOIN topping
+        ON detail_transaksi.topping_id = topping.id
 
-                    // ambil detail
-                    $detail = mysqli_query($conn, "
+        WHERE transaksi_id='".$a['id']."'
 
-    SELECT
-        detail_transaksi.*,
-        produk.nama_produk,
-        topping.nama_topping
+    ");
 
-    FROM detail_transaksi
+    ?>
 
-    LEFT JOIN produk
-    ON detail_transaksi.produk_id = produk.id
+    <!-- BUTTON -->
+    <button
+        class="item-antrian w-100 text-white border-0 <?php echo $warna; ?>"
+        data-bs-toggle="modal"
+        data-bs-target="#modal<?php echo $a['id']; ?>"
+    >
 
-    LEFT JOIN topping
-    ON detail_transaksi.topping_id = topping.id
+        <?php echo ucwords($a['nama_customer']); ?>
 
-    WHERE transaksi_id='" . $a['id'] . "'
+    </button>
 
-");
+    <!-- MODAL UTAMA -->
+    <div
+        class="modal fade"
+        id="modal<?php echo $a['id']; ?>"
+        tabindex="-1"
+    >
 
-                    ?>
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 
-                    <!-- MODAL -->
-                    <div class="modal fade" id="modal<?php echo $a['id']; ?>">
+            <div class="modal-content rounded-4 modal-custom">
 
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <!-- HEADER -->
+                <div class="modal-header w-100 flex-shrink-0">
 
-                            <div class="modal-content rounded-4 modal-custom">
+                    <div class="d-flex justify-content-between align-items-start w-100">
 
-                                <!-- HEADER -->
-                                <div class="modal-header w-100 flex-shrink-0">
+                        <!-- KIRI -->
+                        <div class="d-flex gap-2 align-items-center">
 
-                                    <div class="d-flex justify-content-between align-items-start w-100">
+                            <h5 class="modal-title mb-0">
+                                <?php echo ucwords($a['nama_customer']); ?>
+                            </h5>
 
-                                        <!-- KIRI -->
-                                        <div class="d-flex gap-2 align-items-center">
+                            <?php if ($a['status'] != 'Selesai') { ?>
 
-                                            <h5 class="modal-title mb-0">
-                                                <?php echo ucwords($a['nama_customer']); ?>
-                                            </h5>
+                                <!-- EDIT -->
+                                <a
+                                    href="edit_transaksi.php?id=<?php echo $a['id']; ?>"
+                                    class="btn btn-sm btn-warning"
+                                >
+                                    <i class="bi bi-pencil"></i>
+                                </a>
 
-                                            <?php if ($a['status'] != 'Selesai') { ?>
+                                <!-- HAPUS -->
+                                <a
+                                    href="hapus_transaksi.php?id=<?php echo $a['id']; ?>"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Hapus pesanan ini?')"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                </a>
 
-                                                <!-- EDIT -->
-                                                <a
-                                                    href="edit_transaksi.php?id=<?php echo $a['id']; ?>"
-                                                    class="btn btn-sm btn-warning">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
+                            <?php } ?>
 
-                                                <!-- HAPUS -->
-                                                <a
-                                                    href="hapus_transaksi.php?id=<?php echo $a['id']; ?>"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Hapus pesanan ini?')">
-                                                    <i class="bi bi-trash"></i>
-                                                </a>
+                        </div>
 
-                                            <?php } ?>
+                        <!-- KANAN -->
+                        <div class="d-flex align-items-center gap-2">
 
-                                        </div>
+                            <small class="text-muted">
+                                #<?php echo $a['id']; ?>
+                            </small>
 
-                                        <!-- KANAN -->
-                                        <div class="d-flex align-items-center gap-2">
+                            <?php if ($a['status'] == 'Selesai') { ?>
 
-                                            <small class="text-muted">
-                                                #<?php echo $a['id']; ?>
-                                            </small>
+                                <!-- PDF -->
+                                <a
+                                    href="cetak_struk.php?token=<?php echo $a['token']; ?>"
+                                    target="_blank"
+                                    class="btn btn-sm btn-danger"
+                                >
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                </a>
 
-                                            <button
-                                                class="btn-close"
-                                                data-bs-dismiss="modal">
-                                            </button>
+                                <!-- QR -->
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-dark"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#qrModal<?php echo $a['id']; ?>"
+                                >
+                                    <i class="bi bi-qr-code"></i>
+                                </button>
 
-                                        </div>
+                            <?php } ?>
+
+                            <!-- CLOSE -->
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                            ></button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body modal-body-scroll">
+
+                    <?php while ($d = mysqli_fetch_array($detail)) { ?>
+
+                        <div class="border rounded-3 p-3 mb-2">
+
+                            <!-- HEADER ITEM -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+
+                                <div>
+
+                                    <!-- NAMA -->
+                                    <strong>
+                                        <?php echo $d['nama_produk']; ?>
+                                    </strong>
+
+                                    <!-- HARGA PRODUK -->
+                                    <div class="small text-muted">
+
+                                        Rp <?php echo number_format($d['harga_produk']); ?>
 
                                     </div>
 
                                 </div>
 
-                                <!-- BODY -->
-                                <div class="modal-body modal-body-scroll">
+                                <!-- SUBTOTAL -->
+                                <strong class="text-success">
 
-                                    <?php while ($d = mysqli_fetch_array($detail)) { ?>
+                                    Rp <?php echo number_format($d['subtotal']); ?>
 
-                                        <div class="border rounded-3 p-2 mb-2">
+                                </strong>
 
-                                            <div class="d-flex justify-content-between mb-2">
+                            </div>
 
-                                                <strong>
-                                                    <?php echo $d['nama_produk']; ?>
-                                                </strong>
+                            <!-- DETAIL -->
+                            <div class="small text-muted">
 
-                                                <strong>
-                                                    Rp <?php echo number_format($d['subtotal']); ?>
-                                                </strong>
+                                Coklat :
+                                <?php echo $d['qty_coklat']; ?>
 
-                                            </div>
+                                <br>
 
-                                            <div class="small text-muted">
+                                Matcha :
+                                <?php echo $d['qty_matcha']; ?>
 
-                                                Coklat :
-                                                <?php echo $d['qty_coklat']; ?>
+                                <br>
 
-                                                <br>
+                                <!-- TOPPING -->
+                                <div class="d-flex align-items-center">
 
-                                                Matcha :
-                                                <?php echo $d['qty_matcha']; ?>
+                                    <span>
 
-                                                <br>
+                                        Topping :
+                                        <?php echo $d['nama_topping'] ?: '-'; ?>
 
-                                                Topping :
-                                                <?php echo $d['nama_topping'] ?: '-'; ?>
+                                    </span>
 
-                                            </div>
+                                    <?php if ($d['nama_topping']) { ?>
 
-                                        </div>
+                                        <span
+                                            class="text-primary"
+                                            style="margin-left:5px"
+                                        >
 
-                                    <?php } ?>
+                                            (+<?php echo number_format($d['harga_topping']); ?>)
 
-                                </div>
-
-                                <!-- FOOTER -->
-                                <div class="modal-footer d-block flex-shrink-0">
-
-                                    <!-- TOTAL -->
-                                    <div class="text-end text-danger mb-0">
-
-                                        <strong>Total :</strong>
-
-                                        <strong>
-                                            Rp <?php echo number_format($a['total']); ?>
-                                        </strong>
-
-                                    </div>
-
-                                    <!-- INPUT BAYAR -->
-                                    <div class="mb-2">
-
-                                        <label class="form-label small">
-                                            Bayar
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            class="form-control bayar-input"
-
-                                            data-total="<?php echo $a['total']; ?>"
-
-                                            oninput="hitungKembalian(this)"
-
-                                            placeholder="Masukkan pembayaran"
-
-                                            value="<?php echo $a['bayar']; ?>"
-
-                                            <?php
-                                            if ($a['status'] == 'Selesai') {
-                                                echo 'readonly';
-                                            }
-                                            ?>>
-
-                                    </div>
-
-                                    <!-- KEMBALIAN -->
-                                    <div class="d-flex justify-content-between mb-2">
-
-                                        <strong>Kembalian</strong>
-
-                                        <strong class="text-success kembalian-text">
-                                            Rp <?php echo number_format($a['kembalian']); ?>
-                                        </strong>
-
-                                    </div>
-
-                                    <!-- BUTTON -->
-                                    <?php if ($a['status'] != 'Selesai') { ?>
-
-                                        <div class="d-flex gap-2">
-
-                                            <?php if ($a['status'] == 'Antrian') { ?>
-
-                                                <!-- PENDING -->
-                                                <a
-                                                    href="proses/pending_transaksi.php?id=<?php echo $a['id']; ?>"
-                                                    class="btn btn-warning flex-fill"
-                                                    onclick="return confirm('Pending Pesanan?')">
-                                                    Pending
-                                                </a>
-
-                                            <?php } ?>
-
-                                            <!-- SELESAI -->
-                                            <a
-                                                href="#"
-                                                class="btn btn-success flex-fill btn-selesai"
-                                                data-id="<?php echo $a['id']; ?>"
-                                                onclick="return false;">
-                                                Selesai
-                                            </a>
-
-                                        </div>
+                                        </span>
 
                                     <?php } ?>
 
@@ -493,11 +470,167 @@ $totalSelesai = $dataSelesai['total'];
 
                         </div>
 
+                    <?php } ?>
+
+                </div>
+
+                <!-- FOOTER -->
+                <div class="modal-footer d-block flex-shrink-0">
+
+                    <!-- TOTAL -->
+                    <div class="text-end text-danger mb-2">
+
+                        <strong>Total :</strong>
+
+                        <strong>
+                            Rp <?php echo number_format($a['total']); ?>
+                        </strong>
+
                     </div>
 
-                <?php } ?>
+                    <!-- INPUT BAYAR -->
+                    <div class="mb-2">
+
+                        <label class="form-label small">
+                            Bayar
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control bayar-input"
+                            data-total="<?php echo $a['total']; ?>"
+                            oninput="hitungKembalian(this)"
+                            placeholder="Masukkan pembayaran"
+                            value="<?php echo $a['bayar']; ?>"
+
+                            <?php
+                            if ($a['status'] == 'Selesai') {
+                                echo 'readonly';
+                            }
+                            ?>
+                        >
+
+                    </div>
+
+                    <!-- KEMBALIAN -->
+                    <div class="d-flex justify-content-between mb-2">
+
+                        <strong>Kembalian</strong>
+
+                        <strong class="text-success kembalian-text">
+
+                            Rp <?php echo number_format($a['kembalian']); ?>
+
+                        </strong>
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <?php if ($a['status'] != 'Selesai') { ?>
+
+                        <div class="d-flex gap-2">
+
+                            <?php if ($a['status'] == 'Antrian') { ?>
+
+                                <!-- PENDING -->
+                                <a
+                                    href="proses/pending_transaksi.php?id=<?php echo $a['id']; ?>"
+                                    class="btn btn-warning flex-fill"
+                                    onclick="return confirm('Pending Pesanan?')"
+                                >
+                                    Pending
+                                </a>
+
+                            <?php } ?>
+
+                            <!-- SELESAI -->
+                            <a
+                                href="#"
+                                class="btn btn-success flex-fill btn-selesai"
+                                data-id="<?php echo $a['id']; ?>"
+                                onclick="return false;"
+                            >
+                                Selesai
+                            </a>
+
+                        </div>
+
+                    <?php } ?>
+
+                </div>
 
             </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL QR -->
+    <div
+        class="modal fade"
+        id="qrModal<?php echo $a['id']; ?>"
+        tabindex="-1"
+    >
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content rounded-4">
+
+                <!-- HEADER -->
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        QR Struk
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body text-center">
+
+                    <?php
+
+                    $url =
+                    "http://localhost/kue_balok_sys/cetak_struk.php?token="
+                    .$a['token'];
+
+                    ?>
+
+                    <!-- QR -->
+                    <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=<?php echo urlencode($url); ?>"
+                        class="img-fluid"
+                    >
+
+                    <div class="mt-3">
+
+                        <small class="text-muted">
+
+                            Scan untuk membuka struk
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+<?php } ?>
+
+</div>
 
         </div>
 
@@ -520,14 +653,14 @@ $totalSelesai = $dataSelesai['total'];
 
         </div>
         <div class="d-flex align-items-center justify-content-center mt-3">
-                <a
-                    href="logout.php"
-                    class="btn btn-danger d-flex align-items-center justify-content-center gap-2"
-                    style="height:50px; width:100%; border-radius:18px;">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <strong>Logout</strong>
-                </a>
-            </div>
+            <a
+                href="logout.php"
+                class="btn btn-danger d-flex align-items-center justify-content-center gap-2"
+                style="height:50px; width:100%; border-radius:18px;">
+                <i class="bi bi-box-arrow-right"></i>
+                <strong>Logout</strong>
+            </a>
+        </div>
 
     </div>
 
